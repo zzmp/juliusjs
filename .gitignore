@@ -1,4 +1,4 @@
-bin
-js
-src
-
+/src/
+/bin/
+/js/*
+!/js/listener/
