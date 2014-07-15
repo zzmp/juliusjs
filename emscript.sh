@@ -11,6 +11,8 @@ which cvs ||         { echo 'Missing cvs. Install cvs';
                        exit 1; }
 which git ||         { echo 'Missing git. Install git';
                        exit 1; }
+which autoconf ||    { echo 'Missing autoconf. Install autoconf';
+                       exit 1; }
 which emconfigure || { echo 'Missing emconfigure';
                        echo 'Add emconfigure (from emscripten) to your path.';
                        exit 1; }
@@ -37,9 +39,18 @@ cp ./**/*.dSYM ../../bin
 popd
 
 # Build julius.js intermediary targets
-# modify emscripting copy to ensure compilation
 pushd emscripted
-cat libsent/configure | sed s/'{ echo \"configure: error: mictype not supported, or specified type not exist\" 1>\&2; exit 1; }'/'{ echo \"configure: error: mictype not supported, or specified type not exist\" 1>\&2; }'/g > tmp && mv tmp libsent/configure
+# Add Web Audio adin_mic library
+pushd libsent
+cp ../../include/libsent/configure.in .
+# autoconf configure.in (can't get this to work, so just cp configure)
+cp ../../include/libsent/configure .
+cp ../../include/libsent/src/adin/adin_mic_webaudio.c src/adin/.
+popd
+pushd libjulius
+cp ../../include/libjulius/src/m_adin.c src/.
+popd
+
 # increase optimization level
 sed s/-O2/-O3/g < configure > tmp && mv tmp configure
 chmod 751 configure
@@ -59,7 +70,7 @@ grep -Ev 'j_process_lm_remove' module.c > tmp && mv tmp module.c
 popd
 
 # emscript
-emconfigure ./configure --disable-pthread
+emconfigure ./configure --disable-pthread --with-mictype=webaudio
 emmake make -j4
 mv julius/julius julius/julius.bc
 

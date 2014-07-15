@@ -1,4 +1,8 @@
-/src/
+/src/emscripted/*
+/src/julius4/*
+/src/include/*
+!/src/include/libsent/
+!/src/include/libjulius/
 /bin/
 /js/*
 !/js/listener/
