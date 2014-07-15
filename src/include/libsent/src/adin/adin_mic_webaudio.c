@@ -80,37 +80,45 @@ adin_mic_begin(char *pathname)
     window.adin.onaudioprocess = (function() {
       // Give the event listener access to functions through closure
 
+      var bufferSize = rate * 4096 / 44100;
+      var byteSize = bufferSize * 2;
       // https://github.com/grantgalitz/XAudioJS/blob/master/resampler.js
-      var resampler = new Resampler(44100, rate, 1, rate * 4096 / 44100, true);
+      var resampler = new Resampler(44100, rate, 1, bufferSize, true);
       
       function f32Toi16(float) {
         // Guard against overflow
         var s = Math.max(-1, Math.min(1, float));
         // Assume 2's complement representation
         return s < 0 ? 0xFFFF ^ Math.floor(-s * 0x7FFF) : Math.floor(s * 0x7FFF);
-      };  
+      };
 
       function i16ToUTF8Array(i16, littleEndian) {
         var l = i16 >> 8;
-        var r = i16 - (r << 8); 
-        return littleEndian ? [r, l] : [l, r]; 
-      };  
+        var r = i16 - (r << 8);
+        return littleEndian ? [r, l] : [l, r];
+      };
+
+      var fill_buffer = Module.cwrap('fill_buffer', 'number', ['number', 'number']);
 
       return function(e) {
-        var inp, out, buffer;
+        var inp, out;
+        var ptr = Module._malloc(byteSize);
+        var buffer = new Uint8Array(Module.HEAPU8.buffer, ptr, byteSize);
         inp = event.inputBuffer.getChannelData(0);
         out = event.outputBuffer.getChannelData(0);
         var l = resampler.resampler(inp);
         for (var i = 0; i < l; i++) {
-          i16ToUTF8Array(f32Toi16(resampler.outputBuffer[i])).forEach(function(val) {
-            // FILL THAT BUFFER (DataView)
+          view.setInt16(f32Toi16(resampler.outputBuffer[i])
+          i16ToUTF8Array(f32Toi16(resampler.outputBuffer[i])).forEach(function(val, ind) {
+            buffer[i * 2 + ind] = val;
           }); 
         }   
-        //Module.fill_buffer(buffer)
+        fill_buffer(ptr, byteSize);
+        Module._free(ptr);
         for (var i = 0; i < 4096; i++) {
           out[i] = inp[i];
-        }   
-      };  
+        }
+      }; 
     }());
   );
     
