@@ -32,8 +32,11 @@
 #include <emscripten.h>
 // embind is unavailable in C
 
-static int rate;		///< Sampling rate specified in adin_mic_standby()
-//int [] buffer;
+static int rate;    // < Sampling rate specified in adin_mic_standby()
+SP16 *buffer;
+static long limit = 150000; // About five seconds of buffer
+long get_pos;
+long set_pos;
 
 int
 get_rate()
@@ -42,14 +45,20 @@ get_rate()
 }
 
 void
-fill_buffer()
+fill_buffer(const void* audio_buf, unsigned int buffer_length)
 {
-  //buffer = audio_buffer;
+  SP16* audio_buffer = (SP16*) audio_buf;
+  buffer_length /= 2; // Guaranteed to be even (as it is PCM16)
+  if (buffer_length + set_pos <= limit) {
+    memcpy(&buffer[set_pos], audio_buffer, buffer_length);
+    set_pos += buffer_length;
+  } else {
+    long remainder = buffer_length - set_pos;
+    memcpy(&buffer[set_pos], audio_buffer, remainder);
+    memcpy(buffer, &audio_buffer[remainder], buffer_length - remainder);
+    set_pos = buffer_length - remainder;
+  }
 }
-
-//EMSCRIPTEN_BINDINGS(julius) {
-//  function("fill_buffer", &fill_buffer);
-//}
 
 /** 
  * Device initialization: check device capability and open for recording.
@@ -62,6 +71,9 @@ fill_buffer()
 boolean
 adin_mic_standby(int sfreq, void *dummy)
 {
+  buffer = (SP16 *) malloc( sizeof(SP16) * limit );
+  set_pos = 0;
+  get_pos = 0;
   rate = sfreq;
   return TRUE;
 }
@@ -76,11 +88,13 @@ adin_mic_standby(int sfreq, void *dummy)
 boolean
 adin_mic_begin(char *pathname)
 {
+  get_pos = 1;
   EM_ASM(
     window.adin.onaudioprocess = (function() {
       // Give the event listener access to functions through closure
 
-      var bufferSize = rate * 4096 / 44100;
+      var rate = Module.ccall('get_rate') || 16000;
+      var bufferSize = Math.floor(rate * 4096 / 44100);
       var byteSize = bufferSize * 2;
       // https://github.com/grantgalitz/XAudioJS/blob/master/resampler.js
       var resampler = new Resampler(44100, rate, 1, bufferSize, true);
@@ -108,18 +122,18 @@ adin_mic_begin(char *pathname)
         out = event.outputBuffer.getChannelData(0);
         var l = resampler.resampler(inp);
         for (var i = 0; i < l; i++) {
-          view.setInt16(f32Toi16(resampler.outputBuffer[i])
           i16ToUTF8Array(f32Toi16(resampler.outputBuffer[i])).forEach(function(val, ind) {
             buffer[i * 2 + ind] = val;
           }); 
-        }   
+        }
+        console.log(buffer, ptr, byteSize);
         fill_buffer(ptr, byteSize);
         Module._free(ptr);
         for (var i = 0; i < 4096; i++) {
           out[i] = inp[i];
         }
-      }; 
-    }());
+      };
+    }() );
   );
     
   return TRUE;
@@ -147,21 +161,26 @@ adin_mic_end()
  * @param buf [out] samples obtained in this function
  * @param sampnum [in] wanted number of samples to be read
  * 
- * @return actural number of read samples, -2 if an error occured.
+ * @return actual number of read samples, -2 if an error occured.
  */
 int
 adin_mic_read(SP16 *buf, int sampnum)
 {
   long nread;
 
-  //if (sampnum <= buffer_length) {
-  //    nread = sampnum;
-  //} else {
-  //    nread = buffer_length;
-  //}
+  if (set_pos > get_pos) {
+    nread = set_pos - get_pos >= sampnum ? sampnum : set_pos - get_pos;
+    memcpy(buf, &buffer[get_pos], nread);
+    get_pos += nread;
+  } else if (set_pos < get_pos) {
+    nread = limit - get_pos >= sampnum ? sampnum : limit - get_pos;
+    memcpy(buf, &buffer[get_pos], nread);
+    get_pos = 0;
+    nread += adin_mic_read(&buf[nread], sampnum - nread);
+  } else {
+    return 0;
+  }
 
-  // FILL THAT BUFFER
-  nread = sampnum;
   return nread;
 }
 

@@ -18,7 +18,7 @@
           '-hlist', 'voxforge/tiedlist',
           '-input', 'mic',
           '-spsegment', '-pausemodels', 'sil',
-          '-cutsilence'
+          '-realtime', '-cutsilence'
         ]);
       }, 2000);
     },
