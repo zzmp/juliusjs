@@ -80,7 +80,7 @@ adin_select(ADIn *a, int source, int dev)
       a->ad_terminate	     = adin_mic_terminate;
       a->ad_resume	     = adin_mic_resume;
 #ifdef HAS_WEBAUDIO
-      a->endable_thread = FALSE;
+      a->enable_thread = FALSE;
 #endif
       break;
 #ifdef HAS_ALSA
