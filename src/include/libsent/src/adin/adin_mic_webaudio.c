@@ -1,8 +1,33 @@
+/**
+ * @file   adin_mic_webaudio.c
+ *
+ * <EN>
+ * @brief  Microphone input on JavaScript's Web Audio API.
+ *
+ * Low level I/O functions for microphone input on an emscripten port.
+ * This relies on other alterations inherent in the port.
+ * See the attached script (`emscripten.sh`) for details.
+ *
+ * For more details, see https://github.com/zzmp/juliusjs
+ *
+ * Tested on Chrome 35.0.1916.153 for OS X.
+ * </EN>
+ *
+ * @author Zachary POMERANTZ
+ * @date   Wed Jul 16 13:06:00 2014
+ *
+ * $Revision: 1.00 $
+ * 
+ */
+/*
+ * Copyright (c) 2014 Zachary Pomerantz, @zzmp
+ * Using the MIT License
+ */
+
 #include <sent/stddefs.h>
 #include <sent/adin.h>
 
 #include <emscripten.h>
-// embind is unavailable in C
 
 static int rate;    // < Sampling rate specified in adin_mic_standby()
 static long limit = 320000; // About 20 seconds of buffer
@@ -10,8 +35,15 @@ SP16 *buffer;
 long get_pos = 0;
 long set_pos = 0;
 
+// Expose the rate to JavaScript
 int  get_rate()   { return rate; }
 
+/**
+ * Fill the microphone buffer from the Web Audio API
+ *
+ * @param audio_buf [in] buffer to copy, must be valid monaural PCM16.
+ * @param buffer_length [in] length of buffer to copy (in SP16)
+ */
 void
 fill_buffer(const SP16* audio_buf, unsigned int buffer_length)
 {
@@ -31,14 +63,13 @@ fill_buffer(const SP16* audio_buf, unsigned int buffer_length)
  * Device initialization: check device capability and open for recording.
  * 
  * @param sfreq [in] required sampling frequency.
- * @param dummy [in] a dummy data
+ * @param dummy [in] dummy data
  * 
  * @return TRUE on success, FALSE on failure.
  */
 boolean
 adin_mic_standby(int sfreq, void *dummy)
 {
-  // No need to free() this, as it will be terminated with the Worker
   buffer = (SP16 *) malloc( sizeof(SP16) * limit );
   rate = sfreq;
   return TRUE;
@@ -47,7 +78,10 @@ adin_mic_standby(int sfreq, void *dummy)
 /** 
  * Start recording.
  *
- * @param pathname [in] path name to open or NULL for default
+ * This will always prepare monaural PCM16 audio data.
+ * The endianness is system-defined, to avoid conflict with the port.
+ *
+ * @param pathname [in] ignored for Web Audio.
  * 
  * @return TRUE on success, FALSE on failure.
  */
@@ -64,25 +98,27 @@ adin_mic_begin(char *pathname)
       // https://github.com/grantgalitz/XAudioJS/blob/master/resampler.js
       var resampler = new Resampler(44100, rate, 1, bufferSize, true);
       
+      // Helper functions to convert to PCM16=
       function f32Toi16(float) {
         // Guard against overflow
         var s = Math.max(-1, Math.min(1, float));
         // Assume 2's complement representation
         return s < 0 ? 0xFFFF ^ Math.floor(-s * 0x7FFF) : Math.floor(s * 0x7FFF);
       };
-
       function i16ToUTF8Array(i16, littleEndian) {
         var l = i16 >> 8;
         var r = i16 - (l << 8);
         return littleEndian ? [r, l] : [l, r];
       };
 
+      // Fill the microphone buffer in C
       var fill_buffer = Module.cwrap('fill_buffer', 'number', ['number', 'number']);
 
       return function(e) {
         var inp, out;
         var ptr = Module._malloc(byteSize);
         // Use Uint8Array to enforce endianness
+        // TODO: use Int16Array TypedArray to enforce system endianness
         var buffer = new Uint8Array(Module.HEAPU16.buffer, ptr, byteSize);
         inp = event.inputBuffer.getChannelData(0);
         out = event.outputBuffer.getChannelData(0);
@@ -94,6 +130,8 @@ adin_mic_begin(char *pathname)
         }
         fill_buffer(ptr, bufferSize);
         Module._free(ptr);
+        // Ensure output so audio runs
+        // TODO: replace with audio sink
         for (var i = 0; i < 4096; i++) {
           out[i] = inp[i];
         }
@@ -112,19 +150,19 @@ adin_mic_begin(char *pathname)
 boolean
 adin_mic_end()
 {
-  EM_ASM( adin.onaudioprocess = null; );
+  EM_ASM( adin.onaudioprocess = null; window.alert('ending'); );
   return TRUE;
 }
 
 /**
- * @brief  Read samples from device
+ * @brief  Read samples from device.
  * 
  * Try to read @a sampnum samples and returns actual number of recorded
  * samples currently available.  This function will block until
  * at least some samples are obtained.
  * 
- * @param buf [out] samples obtained in this function
- * @param sampnum [in] wanted number of samples to be read
+ * @param buf [out] samples obtained in this function.
+ * @param sampnum [in] wanted number of samples to be read.
  * 
  * @return actual number of read samples, -2 if an error occured.
  */
@@ -145,54 +183,45 @@ adin_mic_read(SP16 *buf, int sampnum)
   }
 
   // Empty the event queue with a modal, as this is a blocking thread
+  // TODO: Migrate to a Worker to simulate multi-threading
+  EM_ASM( window.alert(); );
+
+  // Option to terminate
   return EM_ASM_INT({
-    window.alert();
     return window.terminate ? -2 : $0;
   }, nread);
 }
 
 /** 
- * Function to pause audio input (wait for buffer flush)
+ * Tiny function to pause audio input (wait for buffer flush).
+ *
+ * Unused by Web Audio.
+ *
+ * @return TRUE on success, FALSE on failure.
+ */
+boolean adin_mic_pause() { return TRUE; }
+
+/**
+ * Tiny function to terminate audio input (discard buffer).
+ *
+ * Unused by Web Audio.
+ *
+ * @return TRUE on success, FALSE on failure.
+ */
+boolean adin_mic_terminate() { return TRUE; }
+
+/** 
+ * Tiny function to resume paused / terminated audio input.
+ *
+ * Unused by Web Audio.
  * 
  * @return TRUE on success, FALSE on failure.
  */
-boolean
-adin_mic_pause()
-{
-  return TRUE;
-}
+boolean adin_mic_resume() { return TRUE; }
 
 /** 
- * Function to terminate audio input (discard buffer)
- * 
- * @return TRUE on success, FALSE on failure.
- */
-boolean
-adin_mic_terminate()
-{
-  return TRUE;
-}
-
-/** 
- * Function to resume the paused / terminated audio input
- * 
- * @return TRUE on success, FALSE on failure.
- */
-boolean
-adin_mic_resume()
-{
-  return TRUE;
-}
-
-/** 
- * 
- * Function to return current input source device name
+ * Tiny function to return current input source device name.
  * 
  * @return string of current input device name.
- * 
  */
-char *
-adin_mic_input_name()
-{
-  return("JavaScript Web Audio API");
-}
+char * adin_mic_input_name() { return("JavaScript Web Audio API"); }

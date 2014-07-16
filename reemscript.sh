@@ -1,5 +1,8 @@
+# (c) 2014 Zachary Pomerantz, @zzmp
+
 ###
-# This script will emscript the Julius SRE
+# This script will remake the Julius SRE
+# It should only be used after `emscript.sh` has been run
 #
 # $1 (-j4)- `make` arguments
 ###
@@ -23,6 +26,6 @@ popd
 
 # Build javascript package
 pushd js
-emcc -O3 ../src/emscripted/julius/julius.bc -L../src/include/zlib -lz -o julius.html --preload-file voxforge -s INVOKE_RUN=0 -s NO_EXIT_RUNTIME=1 -s OUTLINING_LIMIT=100000 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_FUNCTIONS="['_main', '_get_rate', '_fill_buffer']"
+emcc -O3 ../src/emscripted/julius/julius.bc -L../src/include/zlib -lz -o julius.html --preload-file voxforge -s INVOKE_RUN=0 -s NO_EXIT_RUNTIME=1 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_FUNCTIONS="['_main', '_get_rate', '_fill_buffer']"
 popd
 
