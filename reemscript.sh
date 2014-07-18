@@ -8,24 +8,35 @@
 ###
 MK_ARG=${1:-'-j4'};
 
-# Build julius.js intermediary targets
+# Build julius.js
 pushd src/emscripted
-# Update Web Audio adin_mic library
+# - build intermediary targets
+# -- update Web Audio adin_mic library
 pushd libsent
 cp -f ../../include/libsent/src/adin/adin_mic_webaudio.c src/adin/.
 popd
 pushd libjulius
 cp -f ../../include/libjulius/src/m_adin.c src/.
 popd
+# -- update app.h routines for (evented) multithreading
+pushd julius
+cp -f ../../include/julius/app.h .
+cp -f ../../include/julius/main.c .
+cp -f ../../include/julius/recogloop.c .
+popd
+# -- update libjulius for (evented) multithreading
+pushd libjulius
+cp -f ../../include/libjulius/src/recogmain.c src/.
+cp -f ../../include/libjulius/src/adin-cut.c src/.
+popd
 
-# emscript
+# -- emscript
 emmake make -j4
 mv julius/julius julius/julius.bc
 
 popd
 
-# Build javascript package
+# - build javascript package
 pushd js
-emcc -O3 ../src/emscripted/julius/julius.bc -L../src/include/zlib -lz -o julius.html --preload-file voxforge -s INVOKE_RUN=0 -s NO_EXIT_RUNTIME=1 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_FUNCTIONS="['_main', '_get_rate', '_fill_buffer']"
+emcc -O3 ../src/emscripted/julius/julius.bc -L../src/include/zlib -lz -o julius.html --preload-file voxforge -s INVOKE_RUN=0 -s NO_EXIT_RUNTIME=1 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_FUNCTIONS="['_main', '_main_event_recognition_stream_loop', '_end_event_recognition_stream_loop', '_event_recognize_stream', '_get_rate', '_fill_buffer']" 
 popd
-

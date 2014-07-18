@@ -18,7 +18,7 @@ var adin;
         '-h',     'voxforge/hmmdefs',
         '-hlist', 'voxforge/tiedlist',
         '-input', 'mic',
-        '-1pass', '-realtime', //'-quiet'
+        '-realtime', '-quiet'
       ]);
     },
     function(err) {}

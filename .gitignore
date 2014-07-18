@@ -3,6 +3,7 @@
 /src/include/*
 !/src/include/libsent/
 !/src/include/libjulius/
+!/src/include/julius/
 /bin/
 /js/*
 !/js/listener/

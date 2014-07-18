@@ -150,7 +150,6 @@ adin_mic_begin(char *pathname)
 boolean
 adin_mic_end()
 {
-  EM_ASM( adin.onaudioprocess = null; window.alert('ending'); );
   return TRUE;
 }
 
@@ -181,10 +180,6 @@ adin_mic_read(SP16 *buf, int sampnum)
     get_pos = 0;
     nread += adin_mic_read(buf + nread, sampnum - nread);
   }
-
-  // Empty the event queue with a modal, as this is a blocking thread
-  // TODO: Migrate to a Worker to simulate multi-threading
-  EM_ASM( window.alert(); );
 
   // Option to terminate
   return EM_ASM_INT({
