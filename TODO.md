@@ -7,7 +7,7 @@
 -[ ] Hardcode sane options in `julius/main.c`
  -[X] Suppress output through `j_log`
 -[ ] Move to Web Workers
- -[ ] Remove option to terminate in `adin_mic_webaudio.c`
+ -[X] Remove option to terminate in `adin_mic_webaudio.c`
  1. Capture audio
  1. Receive and recognize captured audio (`onmessage`)
   - Pipe output to main thread (`postmessage`)

@@ -181,10 +181,7 @@ adin_mic_read(SP16 *buf, int sampnum)
     nread += adin_mic_read(buf + nread, sampnum - nread);
   }
 
-  // Option to terminate
-  return EM_ASM_INT({
-    return window.terminate ? -2 : $0;
-  }, nread);
+  return nread;
 }
 
 /** 
