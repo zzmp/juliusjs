@@ -4,8 +4,8 @@
  -[X] `ad_go`/`ad_cut`
 -[X] Make the ring/cycle buffer explicit in `adin_mic_webaudio.c`
 -[ ] Move audio to `Sink.js`
--[ ] Hardcode sane options in `libjulius/main.c`
- -[ ] Suppress output through `j_log`
+-[ ] Hardcode sane options in `julius/main.c`
+ -[X] Suppress output through `j_log`
 -[ ] Move to Web Workers
  -[ ] Remove option to terminate in `adin_mic_webaudio.c`
  1. Capture audio

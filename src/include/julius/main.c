@@ -81,7 +81,7 @@ main(int argc, char *argv[])
   Jconf *jconf;
 
   /* inihibit system log output (default: stdout) */
-  //jlog_set_output(NULL);
+  jlog_set_output(NULL);
   /* output system log to a file */
   // FILE *fp = fopen(logfile, "w"); jlog_set_output(fp);
 
