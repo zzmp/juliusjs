@@ -2,7 +2,7 @@
  -[X] `main_recognition_stream_loop`
  -[X] `j_recognize_stream`/`j_recognize_stream_core`
  -[X] `ad_go`/`ad_cut`
--[ ] Make the ring/cycle buffer explicit in `adin_mic_webaudio.c`
+-[X] Make the ring/cycle buffer explicit in `adin_mic_webaudio.c`
 -[ ] Move audio to `Sink.js`
 -[ ] Hardcode sane options in `libjulius/main.c`
  -[ ] Suppress output through `j_log`

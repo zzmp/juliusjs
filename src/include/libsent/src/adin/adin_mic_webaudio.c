@@ -39,7 +39,7 @@ long set_pos = 0;
 int  get_rate()   { return rate; }
 
 /**
- * Fill the microphone buffer from the Web Audio API
+ * Fill the microphone ring buffer from the Web Audio API
  *
  * @param audio_buf [in] buffer to copy, must be valid monaural PCM16.
  * @param buffer_length [in] length of buffer to copy (in SP16)
