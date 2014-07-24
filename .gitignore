@@ -6,4 +6,5 @@
 !/src/include/julius/
 /bin/
 /js/*
+!/js/bootstrap.js
 !/js/listener/
