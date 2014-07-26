@@ -28,6 +28,8 @@ var juliusjs = (function(AudioContext, getUserMedia, audio) {
   // _offloaded to a separate thread to avoid slowing UI_
   var julius = new Worker('worker.js');
 
+  var onfirstpass = function() { /* noop */ };
+  var onrecognition = function() { /* noop */ };
   var terminate = function(cb) {
     processor.onaudioprocess = null;
     julius.terminate();
@@ -56,11 +58,13 @@ var juliusjs = (function(AudioContext, getUserMedia, audio) {
       terminate();
 
     } else if (e.data.type === 'recog') {
-      onrecog(e.data.sentence);
+      if (e.data.firstpass) {
+        onfirstpass(e.data.sentence);
+      } else
+        onrecognition(e.data.sentence, e.data.score);
 
-    } else if (e.data.error === true) {
-      console.error(e.data);
-      terminate();
+    } else if (e.data.type === 'log') {
+      console.log(e.data.sentence);
 
     } else {
       console.info('Unexpected data received from julius:');
@@ -68,12 +72,17 @@ var juliusjs = (function(AudioContext, getUserMedia, audio) {
     }
   };
 
-  return function(onrecog, onfail) {
+  return function(onrecog, onfail, onguess, verbose) {
     if (typeof onrecog !== 'function')
       throw Error('juliusjs: first argument not optional, must be a function');
 
+    onrecognition = onrecog;
+
     if (typeof onfail !== 'function')
       onfail = function(err) { /* noop */ };
+
+    if (typeof onguess === 'function')
+      onfirstpass = onguess;
 
     getUserMedia(
       { audio: true },
@@ -83,7 +92,7 @@ var juliusjs = (function(AudioContext, getUserMedia, audio) {
         processor.connect(context.destination);
 
         // Bootstrap the recognizer
-        julius.postMessage('begin');
+        julius.postMessage({type: 'begin', verbose: verbose});
       },
       function(err) {
         terminate(onfail.bind(null, err));

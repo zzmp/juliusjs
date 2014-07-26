@@ -11,7 +11,7 @@
  1. Receive and recognize captured audio (`onmessage`)
   - _Worker thread_
   - _Pipe output to main thread (`postmessage`)_
-   - [ ] Capture sentences to send to callback (not just logging)
+   - [X] Capture sentences to send to callback (not just logging)
 -[ ] Add dynamic volume normalization to audio
 -[ ] Create use cases
  - Separate repos?
