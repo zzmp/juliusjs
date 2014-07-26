@@ -65,8 +65,8 @@ cp -f ../../include/libjulius/src/recogmain.c src/.
 cp -f ../../include/libjulius/src/adin-cut.c src/.
 popd
 
-# -- increase optimization level
-sed s/-O2/-O3/g < configure > tmp && mv tmp configure
+# -- increase optimization for codesize
+sed s/-O2/-Os/g < configure > tmp && mv tmp configure
 chmod 751 configure
 for subd in $(find . -type d -maxdepth 1); do
   pushd "$subd"
@@ -113,6 +113,6 @@ pushd voxforge
 curl http://www.repository.voxforge1.org/downloads/Main/Tags/Releases/0_1_1-build726/Julius_AcousticModels_16kHz-16bit_MFCC_O_D_\(0_1_1-build726\).tgz | tar zx
 popd
 
-emcc -O3 ../src/emscripted/julius/julius.bc -L../src/include/zlib -lz -o julius.html --preload-file voxforge -s INVOKE_RUN=0 -s NO_EXIT_RUNTIME=1 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_FUNCTIONS="['_main', '_main_event_recognition_stream_loop', '_end_event_recognition_stream_loop', '_event_recognize_stream', _get_rate', '_fill_buffer']"
+emcc -O3 ../src/emscripted/julius/julius.bc -L../src/include/zlib -lz -o recognizer.js --preload-file voxforge -s INVOKE_RUN=0 -s NO_EXIT_RUNTIME=1 -s ALLOW_MEMORY_GROWTH=1 -s BUILD_AS_WORKER=1 -s EXPORTED_FUNCTIONS="['_main', '_main_event_recognition_stream_loop', '_end_event_recognition_stream_loop', '_event_recognize_stream', '_get_rate', '_fill_buffer']"
 
 popd

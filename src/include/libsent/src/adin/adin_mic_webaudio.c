@@ -29,14 +29,10 @@
 
 #include <emscripten.h>
 
-static int rate;    // < Sampling rate specified in adin_mic_standby()
 static long limit = 320000; // About 20 seconds of buffer
 SP16 *buffer;
 long get_pos = 0;
 long set_pos = 0;
-
-// Expose the rate to JavaScript
-int  get_rate()   { return rate; }
 
 /**
  * Fill the microphone ring buffer from the Web Audio API
@@ -71,7 +67,12 @@ boolean
 adin_mic_standby(int sfreq, void *dummy)
 {
   buffer = (SP16 *) malloc( sizeof(SP16) * limit );
-  rate = sfreq;
+
+  // Tell handling script the requested rate
+  EM_ASM_ARGS({
+    setRate(+$0);
+  }, sfreq);
+
   return TRUE;
 }
 
@@ -88,57 +89,9 @@ adin_mic_standby(int sfreq, void *dummy)
 boolean
 adin_mic_begin(char *pathname)
 {
-  EM_ASM(
-    adin.onaudioprocess = (function() {
-      // Give the event listener access to functions through closure
-
-      var rate = Module.ccall('get_rate') || 16000;
-      var bufferSize = Math.floor(rate * 4096 / 44100);
-      var byteSize = bufferSize * 2;
-      // https://github.com/grantgalitz/XAudioJS/blob/master/resampler.js
-      var resampler = new Resampler(44100, rate, 1, bufferSize, true);
-      
-      // Helper functions to convert to PCM16=
-      function f32Toi16(float) {
-        // Guard against overflow
-        var s = Math.max(-1, Math.min(1, float));
-        // Assume 2's complement representation
-        return s < 0 ? 0xFFFF ^ Math.floor(-s * 0x7FFF) : Math.floor(s * 0x7FFF);
-      };
-      function i16ToUTF8Array(i16, littleEndian) {
-        var l = i16 >> 8;
-        var r = i16 - (l << 8);
-        return littleEndian ? [r, l] : [l, r];
-      };
-
-      // Fill the microphone buffer in C
-      var fill_buffer = Module.cwrap('fill_buffer', 'number', ['number', 'number']);
-
-      return function(e) {
-        var inp, out;
-        var ptr = Module._malloc(byteSize);
-        // Use Uint8Array to enforce endianness
-        // TODO: use Int16Array TypedArray to enforce system endianness
-        var buffer = new Uint8Array(Module.HEAPU16.buffer, ptr, byteSize);
-        inp = event.inputBuffer.getChannelData(0);
-        out = event.outputBuffer.getChannelData(0);
-        var l = resampler.resampler(inp);
-        for (var i = 0; i < l; i++) {
-          i16ToUTF8Array(f32Toi16(resampler.outputBuffer[i]), true).forEach(function(val, ind) {
-            buffer[i * 2 + ind] = val;
-          });
-        }
-        fill_buffer(ptr, bufferSize);
-        Module._free(ptr);
-        // Ensure output so audio runs
-        // TODO: replace with audio sink
-        for (var i = 0; i < 4096; i++) {
-          out[i] = inp[i];
-        }
-      };
-    }() );
-  );
-    
+  // Tell handling script to begin sending audio
+  EM_ASM( begin() );
+  
   return TRUE;
 }
 

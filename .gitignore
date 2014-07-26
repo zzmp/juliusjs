@@ -6,4 +6,7 @@
 !/src/include/julius/
 /bin/
 /js/*
+!/js/index.html
+!/js/julius.js
+!/js/worker.js
 !/js/listener/
