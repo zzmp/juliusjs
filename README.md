@@ -31,13 +31,13 @@ julius.onrecognition = function(sentence) {
 ###### Features:
 
 - Real-time transcription
- - Use the provided vocabulary, or write your own
+ - Use the provided grammar, or write your own
 - 100% JavaScript implementation
  - All recognition is done in-browser through a `Worker`
  - Familiar event-inspired API
  - No external server calls
 
-### Quickstart
+## Quickstart
 
 ##### Using Express 4.0
 
@@ -66,15 +66,38 @@ julius.onrecognition = function(sentence) {
 
 - Your site now has real-time speech recognition baked in!
 
-#### Configure your own vocabulary
+### Configure your own recognition grammar
 
-### Motivation
+In order for JuliusJS to use it, your grammar must follow the [Julius grammar specification](http://julius.sourceforge.jp/en_index.php?q=en_grammar.html). The site includes a tutorial on writing grammars.<br>
+By default, phonemes are defined in `bin/hmmdefs`, though you might find [other sites](http://www.boardman.k12.oh.us/bdms/phonological/44Phonemes.pdf) more useful as reference.
 
-### Advanced Use
+- Building your own grammar requires the `mkdfa.pl` script and associated binaries, distributed with Julius.
+ - _On Mac OS X_
+   - Use `./bin/mkdfa.pl`, included with this repo
+ - _On other OS_
+   - Run `emscripten.sh` to populate `bin` with the necessary files
 
-#### Configuring the engine
+1. Write a `yourGrammar.voca` file with words to be recognized
+ - The `.voca` file defines "word candidates" and their pronunciations.
+1. Write a `yourGrammar.grammar` file with phrases composed of those words
+ - The `.grammar` file defines "category-level syntax, i.e. allowed connection of words by their category name."
+1. Compile the grammar using `./bin/mkdfa.pl yourGrammar`
+ - The `.voca` and `.grammar` must be prefixed with the same name
+ - This will generate `yourGrammar.dfa` and `yourGrammar.dict`
+1. Give the new `.dfa` and `.dict` files to the `Julius` constructor
+  
+  ```js
+  // when bootstrapping JuliusJS
+  var julius = new Julius('path/to/dfa', 'path/to/dict');
+  ```
 
-#### Build from source
+## Motivation
+
+## Advanced Use
+
+### Configuring the engine
+
+### Build from source
 
 ## Developers
 
