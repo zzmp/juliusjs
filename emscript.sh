@@ -28,7 +28,7 @@ mkdir -p js
 pushd src
 
 # Grab the sourcecode (version 4.3.1)
-cvs -z3 -d:pserver:anonymous@cvs.sourceforge.jp:/cvsroot/julius co -r 1.20 julius4
+cvs -z3 -d:pserver:anonymous@cvs.sourceforge.jp:/cvsroot/julius co -r release_4_3_1 julius4
 # Make a clean copy from which to emscript
 cp -r julius4 emscripted
 
