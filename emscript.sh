@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # (c) 2014 Zachary Pomerantz, @zzmp
 
 ###
@@ -33,11 +35,16 @@ cvs -z3 -d:pserver:anonymous@cvs.sourceforge.jp:/cvsroot/julius co -r release_4_
 cp -r julius4 emscripted
 
 # Build local executables
-# - this will be used for producing binary inputs to reduce network usage
+# - this will be used for generating custom grammars
+#   and producing binary inputs to reduce network usage
 pushd julius4
 ./configure --disable-pthread
 make $MK_ARG
-cp ./**/*.dSYM ../../bin
+find . -type f -perm +111 -not -regex '.*[sh|in]$' -not -regex '.*config.*' -exec cp -f {} ../../bin \;
+pushd ../../bin
+# this may need to be customized to your system, dependent on what clang emits
+ls *.dSYM | sed 's/\(.*\)\(\.dSYM\)/mv \1\2 \1/' | sh
+popd
 popd
 
 # Build julius.js

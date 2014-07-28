@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # (c) 2014 Zachary Pomerantz, @zzmp
 
 ###
