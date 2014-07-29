@@ -81,8 +81,15 @@ master.onmessage = (function() {
         options.push('-nolog');
       }
 
-      try { Module.callMain(options); }
-      catch (error) { master.postMessage({type: 'error', error: error}); }
+      var bootstrap = function() {
+        if (runDependencies) {
+          setTimeout(bootstrap, 0);
+          return;
+        }
+        try { Module.callMain(options); }
+        catch (error) { master.postMessage({type: 'error', error: error}); }
+      };
+      bootstrap();
 
     } else {
       var ptr = Module._malloc(byteSize);
