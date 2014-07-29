@@ -18,7 +18,12 @@ console.log = (function() {
 
   return function(str) {
     var score;
-    var sentence
+    var sentence;
+
+    if (typeof str !== 'string') {
+      if (console.verbose) master.postMessage({type: 'log', sentence: str});
+      return;
+    }
 
     if (score = str.match(scorePrefix)) {
       master.postMessage({type: 'recog', sentence: recog, score: score[1]});
@@ -30,6 +35,8 @@ console.log = (function() {
       master.postMessage({type: 'log', sentence: str});
   };
 }() );
+
+console.error = function(err) { master.postMessage({type: 'error'}); };
 
 master.onmessage = (function() {
   var converter;
@@ -47,16 +54,35 @@ master.onmessage = (function() {
 
   return function(e) {
     if (e.data.type === 'begin') {
-      console.verbose = e.data.verbose;
+      var dfa = 'julius.dfa';
+      var dict = 'julius.dict';
+      var options = [];
 
-      Module.callMain([
-        '-dfa',   'voxforge/sample.dfa',
-        '-v',     'voxforge/sample.dict',
+      console.verbose = e.data.options.verbose;
+
+      if (typeof e.data.pathToDfa === 'string' && typeof e.data.pathToDict === 'string') {
+        FS.createLazyFile('/', 'julius.dfa', e.data.pathToDfa, true, false);
+        FS.createLazyFile('/', 'julius.dict', e.data.pathToDict, true, false);
+      } else {
+        dfa = 'voxforge/sample.dfa';
+        dict = 'voxforge/sample.dict';
+      }
+
+      options = [
+        '-dfa',   dfa,
+        '-v',     dict,
         '-h',     'voxforge/hmmdefs',
         '-hlist', 'voxforge/tiedlist',
         '-input', 'mic',
-        '-realtime', '-nolog'//, '-quiet'
-      ]);
+        '-realtime'
+      ];
+
+      if (!console.verbose) {
+        options.push('-nolog');
+      }
+
+      try { Module.callMain(options); }
+      catch (error) { master.postMessage({type: 'error', error: error}); }
 
     } else {
       var ptr = Module._malloc(byteSize);

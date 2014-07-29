@@ -1,48 +1,11 @@
- // ### Expose AudioContext/Nodes
- // AudioContext nodemap: `source` -> `processor` -> `destination`
-var audio = {
-  // `AudioContext`
-  context:   null,
-  // `AudioSourceNode` from captured microphone input
-  source:    null,
-  // `ScriptProcessorNode` for julius
-  processor: null,
-  // Set to `true` to propogate audio buffers through `processor`
-  // _if not set, an empty buffer will come out of the processor_
-  transfer:  false
-};
+(function() {
+    var postBuffer = function() {
+      var that = this;
 
-/**
- * ### Bootstrap juliusjs
- *
- * - `onrecog`: a function called when juliusjs recognizes a sentence
- *  - `function(sentence)`, where `sentence` is the recognized string
- * - `onfail`: a function called when juliusjs fails
- *  - `function(err)`, where `err` is an error message, if available
- */
-var juliusjs = (function(AudioContext, getUserMedia, audio) {
-  var context = audio.context = new AudioContext();
-  var processor = audio.processor = context.createScriptProcessor(4096, 1, 1);
-
-  // #### Julius recognizer
-  // _offloaded to a separate thread to avoid slowing UI_
-  var julius = new Worker('worker.js');
-
-  var onfirstpass = function() { /* noop */ };
-  var onrecognition = function() { /* noop */ };
-  var terminate = function(cb) {
-    processor.onaudioprocess = null;
-    julius.terminate();
-    if (typeof cb === 'function')
-      cb();
-  };
-
-  julius.onmessage = function(e) {
-    if (e.data.type === 'begin') {
-      processor.onaudioprocess = function(e) {
+      return function(e) {
         var buffer = e.inputBuffer.getChannelData(0);
         
-        if (audio.transfer) {
+        if (that.audio._transfer) {
           var out = e.outputBuffer.getChannelData(0);
 
           for (var i = 0; i < 4096; i++) {
@@ -50,55 +13,101 @@ var juliusjs = (function(AudioContext, getUserMedia, audio) {
           }
         }
 
-        // Transfer audio to julius
-        julius.postMessage(buffer);
+        // Transfer audio to the recognizer
+        that.recognizer.postMessage(buffer);
+      };
+    };
+
+    var initializeAudio = function(audio) {
+      audio.context = new AudioContext();
+      audio.processor = audio.context.createScriptProcessor(4096, 1, 1);
+    };
+
+    var bootstrap = function(pathToDfa, pathToDict, options) {
+      var audio = this.audio;
+      var recognizer = this.recognizer;
+      var terminate = this.terminate;
+      
+      navigator.webkitGetUserMedia(
+        { audio: true },
+        function(stream) {
+          audio.source = audio.context.createMediaStreamSource(stream);
+          audio.source.connect(audio.processor);
+          audio.processor.connect(audio.context.destination);
+
+          // Bootstrap the recognizer
+          recognizer.postMessage({
+            type: 'begin',
+            pathToDfa: pathToDfa,
+            pathToDict: pathToDict,
+            options: options
+          });
+        },
+        function(err) {
+          terminate();
+          console.error('JuliusJS failed: could not capture microphone input.');
+        }
+      );
+    };
+
+    var Julius = function(pathToDfa, pathToDict, options) {
+      var that = this;
+      options = options || {};
+
+      // The context's nodemap: `source` -> `processor` -> `destination`
+      this.audio = {
+        // `AudioContext`
+        context:   null,
+        // `AudioSourceNode` from captured microphone input
+        source:    null,
+        // `ScriptProcessorNode` for julius
+        processor: null,
+        _transfer:  options.transfer
       };
 
-    } else if (e.data.type === 'error') {
-      terminate();
+      // _Recognition is offloaded to a separate thread to avoid slowing UI_
+      this.recognizer = new Worker('worker.js');
 
-    } else if (e.data.type === 'recog') {
-      if (e.data.firstpass) {
-        onfirstpass(e.data.sentence);
-      } else
-        onrecognition(e.data.sentence, e.data.score);
+      this.recognizer.onmessage = function(e) {
+        if (e.data.type === 'begin') {
+          that.audio.processor.onaudioprocess = postBuffer.call(that);
 
-    } else if (e.data.type === 'log') {
-      console.log(e.data.sentence);
+        } else if (e.data.type === 'recog') {
+          if (e.data.firstpass) {
+            typeof that.onfirstpass === 'function' &&
+              that.onfirstpass(e.data.sentence);
+          } else
+            typeof that.onrecognition === 'function' &&
+              that.onrecognition(e.data.sentence);
 
-    } else {
-      console.info('Unexpected data received from julius:');
-      console.info(e.data);
-    }
-  };
+        } else if (e.data.type === 'log') {
+          typeof that.onlog === 'function' &&
+            that.onlog(e.data.sentence);
 
-  return function(onrecog, onfail, onguess, verbose) {
-    if (typeof onrecog !== 'function')
-      throw Error('juliusjs: first argument not optional, must be a function');
+        } else if (e.data.type === 'error') {
+          console.error(e.data.error);
+          that.terminate();
 
-    onrecognition = onrecog;
+        } else {
+          console.info('Unexpected data received from julius:');
+          console.info(e.data);
+        }
+      };
 
-    if (typeof onfail !== 'function')
-      onfail = function(err) { /* noop */ };
+      initializeAudio(this.audio);
+      bootstrap.call(this, pathToDfa, pathToDict, options);
+    };
 
-    if (typeof onguess === 'function')
-      onfirstpass = onguess;
+    Julius.prototype.onfirstpass = function() { /* noop */ };
+    Julius.prototype.onrecognition = function() { /* noop */ };
+    Julius.prototype.onlog = function(obj) { console.log(obj); };
+    Julius.prototype.onfail = function() { /* noop */ };
+    Julius.prototype.terminate = function(cb) {
+      this.audio.processor.onaudioprocess = null;
+      this.recognizer.terminate();
+      console.error('JuliusJS was terminated.');
+      typeof this.onfail === 'function' && this.onfail();
+    };
 
-    getUserMedia(
-      { audio: true },
-      function(stream) {
-        audio.source = context.createMediaStreamSource(stream);
-        audio.source.connect(processor);
-        processor.connect(context.destination);
-
-        // Bootstrap the recognizer
-        julius.postMessage({type: 'begin', verbose: verbose});
-      },
-      function(err) {
-        terminate(onfail.bind(null, err));
-      }
-    );
-  };
-}(window.AudioContext.bind(window),
-  navigator.webkitGetUserMedia.bind(navigator),
-  audio) );
+    window.Julius = Julius;
+}() );
