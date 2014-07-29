@@ -3,16 +3,6 @@ JuliusJS
 
 > A speech recognition library for the web
 
-### This is in progress and not fully implemented!
-
-- You may need to read the code to use it in its current state
- - The README documents eventual behavior, and is not currently accurate
- - Emscripted code is not yet committed - you'll need to run `emscripten.sh`
- - After running the script, a use example can be found in `js/index.html`
-- This project is in active development - expect __frequent breaking changes__
-
----
-
 JuliusJS is an opinionated port of Julius to JavaScript. <br>
 It __actively listens to the user to transcribe what they are saying__ through a callback.
 
