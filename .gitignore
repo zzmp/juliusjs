@@ -11,3 +11,5 @@
 /js/*
 !/js/index.html
 /bower_components/
+/.emscripted_flag
+/node_modules/

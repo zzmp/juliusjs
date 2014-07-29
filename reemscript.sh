@@ -46,3 +46,6 @@ emcc -O3 ../src/emscripted/julius/julius.bc -L../src/include/zlib -lz -o recogni
 cp -fr ../dist/* .
 
 popd
+
+# mark as built
+touch .emscripted_flag
