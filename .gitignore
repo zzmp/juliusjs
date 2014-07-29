@@ -4,7 +4,10 @@
 !/src/include/libsent/
 !/src/include/libjulius/
 !/src/include/julius/
-/bin/
+/bin/*
+!/bin/mkfa
+!/bin/dfa_minimize
+!/bin/mkdfa.pl
 /js/*
 !/js/index.html
 !/js/julius.js
