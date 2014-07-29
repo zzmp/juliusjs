@@ -10,6 +10,7 @@
 !/bin/mkdfa.pl
 /js/*
 !/js/index.html
+!/js/server.js
 /bower_components/
 /.emscripted_flag
 /node_modules/

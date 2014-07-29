@@ -32,6 +32,7 @@
   "homepage": "https://github.com/zzmp/juliusjs",
   "private": true,
   "devDependencies": {
+    "express": "^4.7.2",
     "supervisor": "^0.6.0"
   }
 }
