@@ -10,7 +10,4 @@
 !/bin/mkdfa.pl
 /js/*
 !/js/index.html
-!/js/julius.js
-!/js/worker.js
-!/js/listener/
 /bower_components/
