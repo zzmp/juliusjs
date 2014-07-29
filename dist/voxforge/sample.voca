@@ -1,0 +1,49 @@
+% NS_B
+<s>        sil
+
+% NS_E
+</s>        sil
+
+% CALL_V
+PHONE        f ow n
+CALL        k ao l
+GET          g eh t 
+
+% PRONOUN
+ME          m iy
+
+% DIAL_V
+DIAL        d ay ax l
+
+% F_NAME_KENNETH
+KENNETH      k eh n ix th
+KEN          k eh n
+
+% L_NAME_KENNETH_MACDOUGALL
+MACDOUGALL    m ax k d uw g ax l
+
+% L_NAME_KENNETH_MACLEAN
+MACLEAN       m ax k l ey n
+
+% F_NAME_STEVE_YOUNG
+STEVEN      s t iy v ax n
+STEVE        s t iy v
+
+% L_NAME_STEVE_YOUNG
+YOUNG        y ah ng
+
+
+% DIGIT
+FIVE       f ay v
+FOUR       f ao r
+NINE       n ay n
+EIGHT      ey t
+OH         ow
+ONE        w ah n
+SEVEN      s eh v ax n
+SIX        s ih k s
+THREE      th r iy
+TWO        t uw
+ZERO(2)    z ih r ow
+
+
