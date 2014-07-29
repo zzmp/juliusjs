@@ -29,6 +29,8 @@ console.log = (function() {
       master.postMessage({type: 'recog', sentence: recog, score: score[1]});
     } else if (sentence = str.match(recogPrefix)) {
       recog = sentence[1];
+      if (console.stripSilence)
+        recog = recog.split(' ').slice(1, -1).join(' ');
     } else if (sentence = str.match(guessPrefix)) {
       master.postMessage({type: 'recog', sentence: sentence[1], firstpass: true});
     } else if (console.verbose)
@@ -59,8 +61,12 @@ master.onmessage = (function() {
       var options = [];
 
       console.verbose = e.data.options.verbose;
+      console.stripSilence =
+        e.data.options.stripSilence === undefined ?
+          true : e.data.options.stripSilence;
 
-      if (typeof e.data.pathToDfa === 'string' && typeof e.data.pathToDict === 'string') {
+      if (typeof e.data.pathToDfa === 'string' &&
+          typeof e.data.pathToDict === 'string') {
         FS.createLazyFile('/', 'julius.dfa', e.data.pathToDfa, true, false);
         FS.createLazyFile('/', 'julius.dict', e.data.pathToDict, true, false);
       } else {
