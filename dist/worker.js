@@ -65,10 +65,16 @@ master.onmessage = (function() {
         e.data.options.stripSilence === undefined ?
           true : e.data.options.stripSilence;
 
+      delete e.data.options.verbose, delete e.data.options.stripSilence;
+
       if (typeof e.data.pathToDfa === 'string' &&
           typeof e.data.pathToDict === 'string') {
-        FS.createLazyFile('/', 'julius.dfa', e.data.pathToDfa, true, false);
-        FS.createLazyFile('/', 'julius.dict', e.data.pathToDict, true, false);
+        var pathToDfa = 
+          ((e.data.pathToDfa[0] === '/') ? '..' : '../') + e.data.pathToDfa;
+        var pathToDict =
+          ((e.data.pathToDict[0] === '/') ? '..' : '../') + e.data.pathToDict;
+        FS.createLazyFile('/', 'julius.dfa', '../' + pathToDfa, true, false);
+        FS.createLazyFile('/', 'julius.dict', '../' + pathToDict, true, false);
       } else {
         dfa = 'voxforge/sample.dfa';
         dict = 'voxforge/sample.dict';
@@ -83,6 +89,14 @@ master.onmessage = (function() {
         '-realtime'
       ];
 
+      for (var flag in options) {
+        if (flag.match(/dfa|v|h|hlist|input|realtime|quiet/))
+          break;
+
+        options.push('-' + flag);
+        if (options[flag] !== true && options[flag])
+          options.push(options[flag]);
+      }
       if (!console.verbose) {
         options.push('-nolog');
       }
