@@ -11,7 +11,7 @@ It __actively listens to the user to transcribe what they are saying__ through a
 var julius = new Julius();
 
 julius.onrecognition = function(sentence) {
-  console.log(sentence);
+    console.log(sentence);
 };
 
 // say "Hello, world!"
@@ -38,7 +38,7 @@ julius.onrecognition = function(sentence) {
 1. Make the scripts available to the client through your server
   ```js
   var express = require('express'),
-    app     = express();
+      app     = express();
   
   app.use(express.static('path/to/dist'));
   ```
@@ -49,8 +49,8 @@ julius.onrecognition = function(sentence) {
   
   // register listener
   julius.onrecognition = function(sentence) {
-    // ...
-    console.log(sentence);
+      // ...
+      console.log(sentence);
   };
   ```
 
