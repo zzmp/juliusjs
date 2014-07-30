@@ -59,7 +59,7 @@ julius.onrecognition = function(sentence) {
 ### Configure your own recognition grammar
 
 In order for JuliusJS to use it, your grammar must follow the [Julius grammar specification](http://julius.sourceforge.jp/en_index.php?q=en_grammar.html). The site includes a tutorial on writing grammars.<br>
-By default, phonemes are defined in `bin/hmmdefs`, though you might find [other sites](http://www.boardman.k12.oh.us/bdms/phonological/44Phonemes.pdf) more useful as reference.
+By default, phonemes are defined in `voxforge/hmmdefs`, though you might find [other sites](http://www.boardman.k12.oh.us/bdms/phonological/44Phonemes.pdf) more useful as reference.
 
 - Building your own grammar requires the `mkdfa.pl` script and associated binaries, distributed with Julius.
  - _On Mac OS X_
@@ -81,13 +81,30 @@ By default, phonemes are defined in `bin/hmmdefs`, though you might find [other 
   var julius = new Julius('path/to/dfa', 'path/to/dict');
   ```
 
-## Motivation
-
 ## Advanced Use
 
 ### Configuring the engine
 
+The `Julius` constructor takes three arguments which can be used to tune the engine:
+- _Both `'path/to/dfa'` and `'path/to/dict'` must be set to use a custom grammar_
+1. `'path/to/dfa'` [_string_]
+ - path to a valid `.dfa` file, generated as described [above](#configure-your-own-recognition-grammar)
+ - if left `null`, the default grammar will be used
+1. `'path/to/dict'` [_string_]
+ - path to a valid `.dict` file, generated as described [above](#configure-your-own-recognition-grammar)
+ -if left `null`, the default grammar will be used
+1. `options` [_object_]
+ - `options.verbose` - _if `true`, JuliusJS will log to the console_
+ - `options.stripSilence` - _if `true`, silence phonemes will not be included in callbacks_
+  - `true` by default
+ - `options.*`
+  - Julius supports a wide range of options. Most of these are made available here, by specifying the flag name as a key. For example: `options.zc = 30` will lower the zero-crossing threshold to 30.<br> _Some of these options will break JuliusJS, so use with caution._
+  - A reference to available options can be found in the [JuliusBook](http://julius.sourceforge.jp/juliusbook/en/).
+  - Currently, the only supported hidden markov model is from voxforge. The `h` and `hlist` options are unsupported.
+
 ### Build from source
+
+## Motivation
 
 ## Developers
 
