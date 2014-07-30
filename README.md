@@ -86,43 +86,49 @@ By default, phonemes are defined in `voxforge/hmmdefs`, though you might find [o
 ### Configuring the engine
 
 The `Julius` constructor takes three arguments which can be used to tune the engine:
-- _Both `'path/to/dfa'` and `'path/to/dict'` must be set to use a custom grammar_
-1. `'path/to/dfa'` [_string_]
- - path to a valid `.dfa` file, generated as described [above](#configure-your-own-recognition-grammar)
- - if left `null`, the default grammar will be used
-1. `'path/to/dict'` [_string_]
- - path to a valid `.dict` file, generated as described [above](#configure-your-own-recognition-grammar)
- -if left `null`, the default grammar will be used
-1. `options` [_object_]
- - `options.verbose` - _if `true`, JuliusJS will log to the console_
- - `options.stripSilence` - _if `true`, silence phonemes will not be included in callbacks_
-  - `true` by default
- - `options.*`
-  - Julius supports a wide range of options. Most of these are made available here, by specifying the flag name as a key. For example: `options.zc = 30` will lower the zero-crossing threshold to 30.<br> _Some of these options will break JuliusJS, so use with caution._
-  - A reference to available options can be found in the [JuliusBook](http://julius.sourceforge.jp/juliusbook/en/).
-  - Currently, the only supported hidden markov model is from voxforge. The `h` and `hlist` options are unsupported.
 
-### Build from source
+```js
+new Julius('path/to/dfa', 'path/to/dict', options)
+```
+
+_Both 'path/to/dfa' and 'path/to/dict' must be set to use a custom grammar_
+
+##### 'path/to/dfa'
+- path to a valid `.dfa` file, generated as described [above](#configure-your-own-recognition-grammar)
+- if left `null`, the default grammar will be used
+
+##### 'path/to/dict'
+- path to a valid `.dict` file, generated as described [above](#configure-your-own-recognition-grammar)
+-if left `null`, the default grammar will be used
+
+##### options
+- `options.verbose` - _if `true`, JuliusJS will log to the console_
+- `options.stripSilence` - _if `true`, silence phonemes will not be included in callbacks_
+ - `true` by default
+- `options.*`
+ - Julius supports a wide range of options. Most of these are made available here, by specifying the flag name as a key. For example: `options.zc = 30` will lower the zero-crossing threshold to 30.<br> _Some of these options will break JuliusJS, so use with caution._
+ - A reference to available options can be found in the [JuliusBook](http://julius.sourceforge.jp/juliusbook/en/).
+ - Currently, the only supported hidden markov model is from voxforge. The `h` and `hlist` options are unsupported.
+
+## Examples
+
+### In the wild
+
+_If you use `JuliusJS` let me know, and I'll add your project to this list (or issue a pull request yourself)._
+
+1. Coming soon...
 
 ## Motivation
 
 ## Developers
 
+___Contributions are welcome! See `CONTRIBUTING.md` for guidelines.___
+
+### Build from source
+
 #### Emscripten
 
-### Implementation goals
-
-### Contributing
-
-- Contributions are welcome! See `CONTRIBUTING.md` for guidelines.
-
-
-## In the wild
-
-_If you use `JuliusJS` let me know, and I'll add your project to this list._
-
-1. Coming soon...
-
+#### Codemap
 
 ---
 
