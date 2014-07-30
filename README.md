@@ -105,6 +105,8 @@ _Both 'path/to/dfa' and 'path/to/dict' must be set to use a custom grammar_
 - `options.verbose` - _if `true`, JuliusJS will log to the console_
 - `options.stripSilence` - _if `true`, silence phonemes will not be included in callbacks_
  - `true` by default
+- `options.transfer` - _if `true`, captured microphone input will be piped to your speakers_
+ - _this is mostly useful for debugging_
 - `options.*`
  - Julius supports a wide range of options. Most of these are made available here, by specifying the flag name as a key. For example: `options.zc = 30` will lower the zero-crossing threshold to 30.<br> _Some of these options will break JuliusJS, so use with caution._
  - A reference to available options can be found in the [JuliusBook](http://julius.sourceforge.jp/juliusbook/en/).
