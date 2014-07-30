@@ -65,6 +65,9 @@
         _transfer:  options.transfer
       };
 
+      // Do not pollute the object
+      delete options.transfer;
+
       // _Recognition is offloaded to a separate thread to avoid slowing UI_
       this.recognizer = new Worker('worker.js');
 
