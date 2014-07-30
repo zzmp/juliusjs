@@ -132,7 +132,7 @@ _If you use `JuliusJS` let me know, and I'll add your project to this list (or i
  - 100% JavaScript - no external dependencies
  - A familiar and _easy-to-use_ context
    - Follow standard eventing patterns (e.g., `onrecognition`)
-- As far as accessability, allow...
+- As far as accessibility, allow...
  - __Out-of-the-box use__
    - Minimal barrier to use
      - _This means commited sample files (e.g. commited emscripted library)_
@@ -142,6 +142,11 @@ _If you use `JuliusJS` let me know, and I'll add your project to this list (or i
  - Useful examples (_not so much motivation, as my motivating goals_)
    - Voice command
    - Keyword spotting
+
+#### Future goals
+
+- Better sample recognition grammar (_improves out-of-the-box usability_)
+- Examples
 
 ## Developers
 
