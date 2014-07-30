@@ -120,6 +120,21 @@ _If you use `JuliusJS` let me know, and I'll add your project to this list (or i
 
 ## Motivation
 
+- Implement speech recognition in...
+ - 100% JavaScript - no external dependencies
+ - A familiar and _easy-to-use_ context
+   - Follow standard eventing patterns (e.g., `onrecognition`)
+- As far as accessability, allow...
+ - __Out-of-the-box use__
+   - Minimal barrier to use
+     - _This means commited sample files (e.g. commited emscripted library)_
+   - Minimal configuration
+     - Real-time (opinionated) use only
+       - Hide mfcc/wav/rawfile configurations
+ - Useful examples (_not so much motivation, as my motivating goals_)
+   - Voice command
+   - Keyword spotting
+
 ## Developers
 
 ___Contributions are welcome! See `CONTRIBUTING.md` for guidelines.___
