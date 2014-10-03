@@ -84,7 +84,7 @@
         } else if (e.data.type === 'recog') {
           if (e.data.firstpass) {
             typeof that.onfirstpass === 'function' &&
-              that.onfirstpass(e.data.sentence);
+              that.onfirstpass(e.data.sentence, e.data.score);
           } else
             typeof that.onrecognition === 'function' &&
               that.onrecognition(e.data.sentence);
@@ -107,8 +107,8 @@
       bootstrap.call(this, pathToDfa, pathToDict, options);
     };
 
-    Julius.prototype.onfirstpass = function() { /* noop */ };
-    Julius.prototype.onrecognition = function() { /* noop */ };
+    Julius.prototype.onfirstpass = function(sentence) { /* noop */ };
+    Julius.prototype.onrecognition = function(sentence, score) { /* noop */ };
     Julius.prototype.onlog = function(obj) { console.log(obj); };
     Julius.prototype.onfail = function() { /* noop */ };
     Julius.prototype.terminate = function(cb) {

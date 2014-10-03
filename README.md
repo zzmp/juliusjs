@@ -48,7 +48,7 @@ julius.onrecognition = function(sentence) {
   var julius = new Julius();
   
   // register listener
-  julius.onrecognition = function(sentence) {
+  julius.onrecognition = function(sentence, score) {
       // ...
       console.log(sentence);
   };
