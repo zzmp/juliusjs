@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Demo of JuliusJS</title>
+    <script src="julius.js"></script>
+  </head>
+  <body>
+    Say something:
+
+    <div id="what-you-said"></div>
+    <script>
+    var julius = new Julius('voxforge/sample.dfa', 'voxforge/sample.dict', {
+      pathToWorker: 'worker.js',
+    });
+
+    julius.onrecognition = function(sentence) {
+      console.log('sentence', sentence);
+      //document.getElementById('what-you-said').innerHTML = sentence;
+    }
+    julius.onfail = function() {
+      console.log('fail');
+    }
+    julius.onfirstpass = function() {
+      console.log('first pass');
+    }
+    </script>
+  </body>
+</html>

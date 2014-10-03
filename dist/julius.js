@@ -75,7 +75,7 @@
       delete options.transfer;
 
       // _Recognition is offloaded to a separate thread to avoid slowing UI_
-      this.recognizer = new Worker('worker.js');
+      this.recognizer = new Worker(options.pathToWorker || 'worker.js');
 
       this.recognizer.onmessage = function(e) {
         if (e.data.type === 'begin') {
