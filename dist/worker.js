@@ -89,17 +89,16 @@ master.onmessage = (function() {
         '-realtime'
       ];
 
-      for (var flag in options) {
-        if (flag.match(/dfa|v|h|hlist|input|realtime|quiet/))
+      for (var flag in e.data.options) {
+        if (flag.match(/dfa|v|h|hlist|input|realtime|quiet|nolog|log/))
           break;
 
         options.push('-' + flag);
         if (options[flag] !== true && options[flag])
           options.push(options[flag]);
       }
-      if (!console.verbose) {
-        options.push('-nolog');
-      }
+      if (!('log' in e.data.options)) options.push('-nolog');
+      else console.verbose = true;
 
       var bootstrap = function() {
         if (runDependencies) {
