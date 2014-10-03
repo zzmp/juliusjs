@@ -28,7 +28,13 @@
       var recognizer = this.recognizer;
       var terminate = this.terminate;
       
-      navigator.webkitGetUserMedia(
+      // Compatibility
+      navigator.getUserMedia  = navigator.getUserMedia ||
+                          navigator.webkitGetUserMedia ||
+                          navigator.mozGetUserMedia ||
+                          navigator.msGetUserMedia;
+
+      navigator.getUserMedia(
         { audio: true },
         function(stream) {
           audio.source = audio.context.createMediaStreamSource(stream);
