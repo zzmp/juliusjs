@@ -101,7 +101,7 @@ _Both 'path/to/dfa' and 'path/to/dict' must be set to use a custom grammar_
 
 ##### 'path/to/dict'
 - path to a valid `.dict` file, generated as described [above](#configure-your-own-recognition-grammar)
--if left `null`, the default grammar will be used
+- if left `null`, the default grammar will be used
 
 ##### options
 - `options.verbose` - _if `true`, JuliusJS will log to the console_
