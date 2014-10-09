@@ -19,7 +19,7 @@
     };
 
     var initializeAudio = function(audio) {
-      audio.context = new AudioContext();
+      audio.context = new (window.AudioContext || window.webkitAudioContext)();
       audio.processor = audio.context.createScriptProcessor(4096, 1, 1);
     };
 
