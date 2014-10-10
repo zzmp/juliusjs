@@ -43,6 +43,8 @@ julius.onrecognition = function(sentence) {
       app     = express();
   
   app.use(express.static('path/to/dist'));
+  
+  app.listen(3000);
   ```
 1. In your main script, bootstrap JuliusJS and register an event listener for recognition events
   ```js
