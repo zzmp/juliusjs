@@ -12,6 +12,9 @@ rm -f emscript.sh reemscript.sh ./bower.json ./package.json CONTRIBUTING.md
 cp -fR ./dist/* ./
 rm -rf ./dist
 
+# Rename the index.html
+mv ./ghpages.html ./index.html
+
 # Push the ghpages
 git add --all
 git config user.name "Zach Pomerantz"
