@@ -1,0 +1,8 @@
+os:
+- linux
+script:
+- npm test
+env:
+  global:
+    secure: RAEgFh9Ew0ePGJgrRU7WHuz2iUPc8GbrjW2tg5jsNvLawiswz1uO5CFF84vQtTVMgu4GDRM/JdH23FEfSfS705GlG1d4IsBDk27tVAbFDl9GTJejUkXRX6FY1tJovxp+EKX7ufEX3sjRwKeJXa14Fbxli4HMI0U6D1cgN6ddS84=
+after_success: ./ghpages.sh
