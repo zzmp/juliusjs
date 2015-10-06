@@ -1,4 +1,4 @@
-(function() {
+(function(window, navigator, undefined) {
     var postBuffer = function() {
       var that = this;
 
@@ -119,4 +119,4 @@
     };
 
     window.Julius = Julius;
-}() );
+}(window,window.navigator) );
