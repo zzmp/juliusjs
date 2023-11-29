@@ -87,10 +87,16 @@ By default, phonemes are defined in `voxforge/hmmdefs`, though you might find [o
 
 ### Configuring the engine
 
-The `Julius` constructor takes three arguments which can be used to tune the engine:
+The `Julius` constructor takes three to four arguments, with which the stream parameter is optional which can be used to tune the engine:
 
 ```js
 new Julius('path/to/dfa', 'path/to/dict', options)
+```
+
+or the stream object is passed for more control, direct stream channeling and fine tuning of Julius which removes the need of accesing the microphone twice when the need to record while transcribing arises.
+
+```js
+new Julius('path/to/dfa', 'path/to/dict', options , stream)
 ```
 
 _Both 'path/to/dfa' and 'path/to/dict' must be set to use a custom grammar_
@@ -113,6 +119,11 @@ _Both 'path/to/dfa' and 'path/to/dict' must be set to use a custom grammar_
  - Julius supports a wide range of options. Most of these are made available here, by specifying the flag name as a key. For example: `options.zc = 30` will lower the zero-crossing threshold to 30.<br> _Some of these options will break JuliusJS, so use with caution._
  - A reference to available options can be found in the [JuliusBook](http://julius.sourceforge.jp/juliusbook/en/).
  - Currently, the only supported hidden markov model is from voxforge. The `h` and `hlist` options are unsupported.
+
+##### stream
+- a valid stream object gotten from the `navigator.mediaDevices.getUserMedia` method
+- if stream is not an audio stream julius will terminate
+- if stream doesnt exist julius will terminate
 
 ## Examples
 
